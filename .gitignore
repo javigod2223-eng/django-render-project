@@ -1,0 +1,77 @@
+# Python
+*.py[cod]
+*$py.class
+*.so
+.Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Django
+*.log
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+local_settings.py
+
+# Variables de entorno - CRÍTICO - NUNCA SUBIR
+.env
+.env.local
+.env.*.local
+.env.production
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+env.bak/
+venv.bak/
+
+# IDE - Visual Studio Code
+.vscode/
+*.code-workspace
+
+# IDE - PyCharm
+.idea/
+
+# IDE - Otros editores
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+
+# OS - MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# OS - Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+nosetests.xml
+coverage.xml
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg
+.eggs/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Backups
+*.bak
+*.backup

@@ -1,0 +1,46 @@
+================================================================================
+  DOCUMENTACIÓN DE CAJA BLANCA
+  Criterio: DESVIACIÓN DE PRESUPUESTO
+  Fecha: 2025-10-23
+================================================================================
+
+1. DATOS DE ENTRADA
+--------------------------------------------------------------------------------
+   presupuesto: 30000.0
+   costo_final: 33500.0
+   desviacion: 11.666666666666666
+
+2. CÓDIGO FUENTE CON VALORES SUSTITUIDOS
+--------------------------------------------------------------------------------
+
+   def _calcular_desviacion_presupuesto(proyecto):
+       if proyecto.presupuesto == 0:  # → 30000.0 == 0
+           return 0
+       
+       desviacion = ((proyecto.costo_final - proyecto.presupuesto) / proyecto.presupuesto) * 100
+       # → ((33500.0 - 30000.0) / 30000.0) * 100 = 11.67
+       
+       if desviacion >= 50:  # → 11.67 >= 50
+           return 100
+       elif desviacion >= 25:  # → 11.67 >= 25
+           return 80
+       elif desviacion >= 10:  # → 11.67 >= 10
+           return 60
+       elif desviacion >= 0:  # → 11.67 >= 0
+           return 30
+       else:
+           return 10
+
+
+3. CAMINO LÓGICO EJECUTADO
+--------------------------------------------------------------------------------
+   Evaluando presupuesto = 30000.0
+   Desviación calculada = 11.67%
+   ✓ Condición: desviacion >= 10 → 11.67 >= 10 → VERDADERO
+     Retorna: 60 (Sobrecosto 10-25%)
+
+4. RESULTADO/SCORE OBTENIDO
+--------------------------------------------------------------------------------
+   Score: 60
+
+================================================================================

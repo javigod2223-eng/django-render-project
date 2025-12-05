@@ -1,0 +1,127 @@
+{% extends 'MenusAdmins/base_dashboard.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-project-diagram"></i> Detalle de Prioridad: {{ proyecto.nombre_proyecto }}</h2>
+                <a href="{% url 'dashboard_prioridades' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver al Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Score general -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center {% if nivel == 'Crítica' %}bg-danger{% elif nivel == 'Alta' %}bg-warning{% elif nivel == 'Media' %}bg-info{% else %}bg-success{% endif %} text-white">
+                <div class="card-body">
+                    <h5>Nivel de Prioridad</h5>
+                    <h1>{{ nivel }}</h1>
+                    <h3>Score: {{ score }}/100</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Información del Proyecto</h5>
+                    <p><strong>Estado:</strong> {{ proyecto.estado }}</p>
+                    <p><strong>Avance:</strong> {{ proyecto.porcentaje }}%</p>
+                    <p><strong>Fecha Inicio:</strong> {{ proyecto.fecha_inicio }}</p>
+                    <p><strong>Fecha Límite:</strong> {{ proyecto.fecha_final }}</p>
+                    <p><strong>Presupuesto:</strong> ${{ proyecto.presupuesto }}</p>
+                    <p><strong>Costo Actual:</strong> ${{ proyecto.costo_final }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Desglose de criterios -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Desglose de Criterios de Priorización</h4>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Criterio</th>
+                                <th>Score</th>
+                                <th>Barra de Progreso</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Urgencia de Tiempo</strong> (30%)</td>
+                                <td>{{ detalles.urgencia_tiempo|floatformat:1 }}</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-danger" style="width: {{ detalles.urgencia_tiempo }}%;"></div>
+                                    </div>
+                                </td>
+                                <td>Basado en días restantes hasta fecha límite</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Desviación de Presupuesto</strong> (25%)</td>
+                                <td>{{ detalles.desviacion_presupuesto|floatformat:1 }}</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-warning" style="width: {{ detalles.desviacion_presupuesto }}%;"></div>
+                                    </div>
+                                </td>
+                                <td>Diferencia entre presupuesto planeado y real</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Nivel de Riesgo</strong> (20%)</td>
+                                <td>{{ detalles.riesgo|floatformat:1 }}</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-dark" style="width: {{ detalles.riesgo }}%;"></div>
+                                    </div>
+                                </td>
+                                <td>Promedio de riesgos registrados</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Retraso en Avance</strong> (15%)</td>
+                                <td>{{ detalles.avance|floatformat:1 }}</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-info" style="width: {{ detalles.avance }}%;"></div>
+                                    </div>
+                                </td>
+                                <td>Comparación entre avance esperado vs real</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Recursos Asignados</strong> (10%)</td>
+                                <td>{{ detalles.recursos|floatformat:1 }}</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success" style="width: {{ detalles.recursos }}%;"></div>
+                                    </div>
+                                </td>
+                                <td>Cantidad de recursos humanos involucrados</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <a href="{% url 'detalles_proyecto' proyecto.id %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-folder-open"></i> Ver Detalles Completos del Proyecto
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

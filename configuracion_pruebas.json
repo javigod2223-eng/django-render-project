@@ -1,0 +1,32 @@
+{
+  "urgencia_tiempo": [
+    {
+      "nombre": "test_urgencia_menos_mes",
+      "descripcion": "Menos de 1 mes",
+      "dias": 22,
+      "score_esperado": 70,
+      "codigo_lineas": [
+        38,
+        47,
+        49,
+        51,
+        52
+      ],
+      "condicion": "dias_restantes <= 30 → 22 <= 30 → TRUE"
+    }
+  ],
+  "desviacion_presupuesto": [
+    {
+      "nombre": "test_desviacion_presupuesto_cero",
+      "descripcion": "Presupuesto en cero",
+      "presupuesto": 0,
+      "costo_final": 0,
+      "score_esperado": 0,
+      "codigo_lineas": [
+        62,
+        63
+      ],
+      "condicion": "presupuesto == 0 → TRUE"
+    }
+  ]
+}

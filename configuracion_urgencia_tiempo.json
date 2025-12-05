@@ -1,0 +1,43 @@
+{
+  "urgencia_tiempo": [
+    {
+      "nombre": "test_urgencia_menos_semana",
+      "descripcion": "Menos de 1 semana",
+      "dias": 7,
+      "score_esperado": 90,
+      "codigo_lineas": [
+        38,
+        47,
+        49,
+        50
+      ],
+      "condicion": "dias_restantes <= 7 → 7 <= 7 → TRUE",
+      "valores": {
+        "dias_restantes": 7
+      }
+    }
+  ],
+  "desviacion_presupuesto": [
+    {
+      "nombre": "test_desviacion_sobrecosto_10_25",
+      "descripcion": "Sobrecosto 10-25%",
+      "presupuesto": 250000.0,
+      "costo_final": 3500000.0,
+      "score_esperado": 60,
+      "codigo_lineas": [
+        65,
+        67,
+        69,
+        70,
+        72,
+        73
+      ],
+      "condicion": "10 <= desviacion < 25 → 10 <= 1300.0 < 25 → TRUE",
+      "valores": {
+        "presupuesto": 250000.0,
+        "costo_final": 3500000.0,
+        "desviacion": "1300.0%"
+      }
+    }
+  ]
+}

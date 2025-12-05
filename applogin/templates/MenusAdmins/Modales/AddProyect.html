@@ -1,0 +1,384 @@
+<!-- Modal Agregar Proyecto -->
+<div class="modal fade" id="AnadirProyecto" tabindex="-1" aria-labelledby="AnadirProyectoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="AnadirProyectoLabel">
+                    <i class="fas fa-plus-circle"></i> Agregar Nuevo Proyecto
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'agregar_proyecto' %}" id="formAgregarProyecto" novalidate>
+    {% csrf_token %}
+                    {% csrf_token %}
+                    
+                    <!-- Nombre del Proyecto -->
+                    <div class="form-group">
+                        <label for="{{ form.nombre_proyecto.id_for_label }}">
+                            Nombre del Proyecto <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" name="nombre_proyecto" class="form-control" id="id_nombre_proyecto" required>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <!-- Administrador del Proyecto -->
+                    <div class="form-group">
+                        <label for="{{ form.admin_proyecto_usuario.id_for_label }}">
+                            Administrador del Proyecto <span class="text-danger">*</span>
+                        </label>
+                        {{ form.admin_proyecto_usuario }}
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Porcentaje -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="id_porcentaje">
+                                    Porcentaje de Avance (%) <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" name="porcentaje" class="form-control" id="id_porcentaje" min="0" max="100" step="0.1" required>
+                                <small class="form-text text-muted">Debe estar entre 0 y 100</small>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Fecha de Inicio -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="id_fecha_inicio">
+                                    Fecha de Inicio <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" name="fecha_inicio" class="form-control" id="id_fecha_inicio" required>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+
+                        <!-- Fecha Final -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="id_fecha_final">
+                                    Fecha Final <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" name="fecha_final" class="form-control" id="id_fecha_final" required>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Presupuesto Inicial -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="id_presupuesto">
+                                    Presupuesto Inicial <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" name="presupuesto" class="form-control" id="id_presupuesto" min="0.01" step="0.01" required>
+                                <small class="form-text text-muted">Debe ser mayor a 0</small>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+
+                        <!-- Costo Final -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="id_costo_final">
+                                    Costo Final <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" name="costo_final" class="form-control" id="id_costo_final" min="0" step="0.01" required>
+                                <small class="form-text text-muted">No puede ser negativo</small>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Descripción -->
+                    <div class="form-group">
+                        <label for="id_descripcion">
+                            Descripción del Proyecto <span class="text-danger">*</span>
+                        </label>
+                        <textarea name="descripcion" class="form-control" id="id_descripcion" rows="3" required></textarea>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Guardar Proyecto
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .invalid-feedback {
+        display: block;
+        color: #dc3545;
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+    }
+    
+    .form-control.is-invalid {
+        border-color: #dc3545;
+        padding-right: calc(1.5em + 0.75rem);
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+    
+    .form-control.is-valid {
+        border-color: #28a745;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('AnadirProyecto');
+    const form = document.getElementById('formAgregarProyecto');
+    
+    if (!form) {
+        console.error('❌ No se encontró el formulario');
+        return;
+    }
+    
+    console.log('✅ Script de formulario cargado correctamente');
+    
+    // ✅ URL para verificar nombre (definida fuera del template tag)
+    const urlVerificarNombre = "{% url 'verificar_nombre_proyecto' %}";
+    
+    // ✅ Limpiar formulario al cerrar modal (SIN jQuery)
+    if (modal) {
+        modal.addEventListener('hidden.bs.modal', function() {
+            form.reset();
+            form.querySelectorAll('.form-control').forEach(field => {
+                field.classList.remove('is-invalid', 'is-valid');
+            });
+            form.querySelectorAll('.invalid-feedback').forEach(feedback => {
+                feedback.textContent = '';
+            });
+        });
+    }
+    
+    // Validación en tiempo real
+    const nombreInput = document.getElementById('id_nombre_proyecto');
+    const porcentajeInput = document.getElementById('id_porcentaje');
+    const fechaInicioInput = document.getElementById('id_fecha_inicio');
+    const fechaFinalInput = document.getElementById('id_fecha_final');
+    const presupuestoInput = document.getElementById('id_presupuesto');
+    const costoFinalInput = document.getElementById('id_costo_final');
+    const descripcionInput = document.getElementById('id_descripcion');
+    
+    // Función auxiliar para mostrar error
+    function mostrarError(input, mensaje) {
+        input.classList.add('is-invalid');
+        input.classList.remove('is-valid');
+        const feedback = input.parentElement.querySelector('.invalid-feedback');
+        if (feedback) feedback.textContent = '❌ ' + mensaje;
+    }
+    
+    function mostrarValido(input) {
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+        const feedback = input.parentElement.querySelector('.invalid-feedback');
+        if (feedback) feedback.textContent = '';
+    }
+    
+    function mostrarCargando(input) {
+        input.classList.remove('is-invalid', 'is-valid');
+        const feedback = input.parentElement.querySelector('.invalid-feedback');
+        if (feedback) {
+            feedback.style.color = '#6c757d';
+            feedback.textContent = '🔄 Verificando...';
+        }
+    }
+    
+    // Validar nombre con AJAX (verificar unicidad)
+    let timeoutNombre = null;
+    if (nombreInput) {
+        nombreInput.addEventListener('input', function() {
+            const valor = this.value.trim();
+            
+            // Limpiar timeout anterior
+            if (timeoutNombre) {
+                clearTimeout(timeoutNombre);
+            }
+            
+            if (!valor) {
+                mostrarError(this, 'El nombre del proyecto es obligatorio');
+                return;
+            }
+            
+            if (valor.length < 3) {
+                mostrarError(this, 'El nombre debe tener al menos 3 caracteres');
+                return;
+            }
+            
+            // Mostrar "verificando..."
+            mostrarCargando(this);
+            
+            // Verificar después de 500ms (debounce)
+            timeoutNombre = setTimeout(() => {
+                fetch(urlVerificarNombre + '?nombre=' + encodeURIComponent(valor))
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error en la respuesta del servidor');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.existe) {
+                            mostrarError(nombreInput, `Ya existe un proyecto con el nombre "${valor}". Por favor, elige otro nombre.`);
+                        } else {
+                            mostrarValido(nombreInput);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al verificar nombre:', error);
+                        mostrarError(nombreInput, 'Error al verificar el nombre. Intenta de nuevo.');
+                    });
+            }, 500);
+        });
+    }
+    
+    // Validar porcentaje
+    if (porcentajeInput) {
+        porcentajeInput.addEventListener('input', function() {
+            const valor = parseFloat(this.value);
+            if (isNaN(valor)) {
+                mostrarError(this, 'Ingresa un número válido');
+            } else if (valor < 0) {
+                mostrarError(this, 'El porcentaje no puede ser negativo');
+            } else if (valor > 100) {
+                mostrarError(this, 'El porcentaje no puede ser mayor a 100');
+            } else {
+                mostrarValido(this);
+            }
+        });
+    }
+    
+    // Validar fechas
+    if (fechaInicioInput && fechaFinalInput) {
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        
+        fechaInicioInput.addEventListener('change', function() {
+            const fechaIngresada = new Date(this.value + 'T00:00:00');
+            fechaIngresada.setHours(0, 0, 0, 0);
+            
+            if (fechaIngresada < hoy) {
+                mostrarError(this, 'La fecha de inicio no puede ser anterior a hoy');
+            } else {
+                mostrarValido(this);
+                // Revalidar fecha final
+                if (fechaFinalInput.value) {
+                    fechaFinalInput.dispatchEvent(new Event('change'));
+                }
+            }
+        });
+        
+        fechaFinalInput.addEventListener('change', function() {
+            const fechaIngresada = new Date(this.value + 'T00:00:00');
+            fechaIngresada.setHours(0, 0, 0, 0);
+            
+            if (fechaIngresada < hoy) {
+                mostrarError(this, 'La fecha final no puede ser anterior a hoy');
+            } else if (fechaInicioInput.value) {
+                const fechaInicio = new Date(fechaInicioInput.value + 'T00:00:00');
+                fechaInicio.setHours(0, 0, 0, 0);
+                
+                if (fechaIngresada < fechaInicio) {
+                    mostrarError(this, 'La fecha final debe ser posterior o igual a la fecha de inicio');
+                } else {
+                    mostrarValido(this);
+                }
+            } else {
+                mostrarValido(this);
+            }
+        });
+    }
+    
+    // Validar presupuesto
+    if (presupuestoInput) {
+        presupuestoInput.addEventListener('input', function() {
+            const valor = parseFloat(this.value);
+            if (isNaN(valor)) {
+                mostrarError(this, 'Ingresa un número válido');
+            } else if (valor < 0) {
+                mostrarError(this, 'El presupuesto no puede ser negativo');
+            } else if (valor === 0) {
+                mostrarError(this, 'El presupuesto debe ser mayor a 0');
+            } else {
+                mostrarValido(this);
+            }
+        });
+    }
+    
+    // Validar costo final
+    if (costoFinalInput) {
+        costoFinalInput.addEventListener('input', function() {
+            const valor = parseFloat(this.value);
+            if (isNaN(valor)) {
+                mostrarError(this, 'Ingresa un número válido');
+            } else if (valor < 0) {
+                mostrarError(this, 'El costo final no puede ser negativo');
+            } else {
+                mostrarValido(this);
+            }
+        });
+    }
+    
+    // Validar descripción
+    if (descripcionInput) {
+        descripcionInput.addEventListener('blur', function() {
+            if (this.value.trim().length < 10) {
+                mostrarError(this, 'La descripción debe tener al menos 10 caracteres');
+            } else {
+                mostrarValido(this);
+            }
+        });
+    }
+    
+    // ✅ Validación final al enviar
+    form.addEventListener('submit', function(e) {
+        console.log('📤 Formulario enviándose...');
+        let hayErrores = false;
+        
+        // Verificar que NO haya campos con error
+        form.querySelectorAll('.form-control').forEach(input => {
+            if (input.classList.contains('is-invalid')) {
+                console.log('❌ Campo inválido encontrado:', input.name);
+                hayErrores = true;
+            }
+        });
+        
+        // Verificar que el nombre sea único
+        if (nombreInput && nombreInput.value.trim()) {
+            if (!nombreInput.classList.contains('is-valid')) {
+                console.log('❌ Nombre no validado aún');
+                e.preventDefault();
+                alert('⚠️ Esperando validación del nombre del proyecto...');
+                return false;
+            }
+        }
+        
+        if (hayErrores) {
+            e.preventDefault();
+            alert('⚠️ Por favor, corrige los errores antes de guardar el proyecto');
+            return false;
+        }
+        
+        console.log('✅ Formulario válido, enviando...');
+        // El formulario se enviará normalmente
+    });
+});
+</script>

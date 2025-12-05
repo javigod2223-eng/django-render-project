@@ -1,0 +1,124 @@
+{% extends 'MenusAdmins/base_dashboard.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-chart-line"></i> Dashboard de Prioridades</h2>
+                <form method="POST" action="{% url 'actualizar_prioridades' %}">
+    {% csrf_token %}
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-sync-alt"></i> Actualizar Prioridades
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen de prioridades -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5>Crítica</h5>
+                    <h2>{{ proyectos_criticos.count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5>Alta</h5>
+                    <h2>{{ proyectos_altos.count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5>Media</h5>
+                    <h2>{{ proyectos_medios.count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5>Baja</h5>
+                    <h2>{{ proyectos_bajos.count }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de proyectos -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Proyectos Ordenados por Prioridad</h4>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Prioridad</th>
+                                <th>Proyecto</th>
+                                <th>Score</th>
+                                <th>Avance</th>
+                                <th>Fecha Límite</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for proyecto in proyectos %}
+                            <tr>
+                                <td>
+                                    {% if proyecto.prioridad_nivel == 'Crítica' %}
+                                        <span class="badge bg-danger">{{ proyecto.prioridad_nivel }}</span>
+                                    {% elif proyecto.prioridad_nivel == 'Alta' %}
+                                        <span class="badge bg-warning">{{ proyecto.prioridad_nivel }}</span>
+                                    {% elif proyecto.prioridad_nivel == 'Media' %}
+                                        <span class="badge bg-info">{{ proyecto.prioridad_nivel }}</span>
+                                    {% else %}
+                                        <span class="badge bg-success">{{ proyecto.prioridad_nivel }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ proyecto.nombre_proyecto }}</td>
+                                <td><strong>{{ proyecto.prioridad_score }}</strong>/100</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar" 
+                                            style="width: {{ proyecto.porcentaje }}%;">
+                                            {{ proyecto.porcentaje }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ proyecto.fecha_final }}</td>
+                                <td>
+                                    <a href="{% url 'detalle_prioridad_proyecto' proyecto.id %}" 
+                                       class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i> Ver Detalles
+                                    </a>
+                                    <a href="{% url 'detalles_proyecto' proyecto.id %}" 
+                                       class="btn btn-sm btn-primary">
+                                        <i class="fas fa-folder"></i> Proyecto
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No hay proyectos activos</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

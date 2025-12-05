@@ -1,0 +1,356 @@
+{% extends 'MenusAdmins/base_dashboard.html' %}
+
+{% block title %}Gestión de Recursos Humanos{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Mensajes de éxito/error -->
+    {% if messages %}
+        <div class="row">
+            <div class="col-md-12">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-users-cog"></i> Gestión de Recursos Humanos</h2>
+                <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver al Dashboard
+                </a>
+            </div>
+
+            <!-- Botón para agregar nuevo recurso humano -->
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-target="#modalAgregarRecurso">
+                        <i class="fas fa-user-plus"></i> Agregar Nuevo Recurso Humano
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla de recursos humanos -->
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="fas fa-list"></i> Lista de Recursos Humanos</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover mb-0">
+                <thead class="thead-dark">
+                    <tr>
+                        <th style="width: 4%;">ID</th>
+                        <th style="width: 18%;">Nombre</th>
+                        <th style="width: 22%;">Correo</th>
+                        <th style="width: 12%;">Rol</th>
+                        <th style="width: 13%;" class="text-center">Proyectos</th>
+                        <th style="width: 13%;" class="text-center">Estado</th>
+                        <th style="width: 18%;" class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in usuarios_con_proyectos %}
+                    <tr>
+                        <td class="align-middle">{{ item.usuario.id }}</td>
+                        <td class="align-middle">
+                            <i class="fas fa-user text-primary"></i> 
+                            <strong>{{ item.usuario.nombre_usuario }}</strong>
+                        </td>
+                        <td class="align-middle" style="font-size: 0.9rem;">
+                            <i class="fas fa-envelope text-info"></i> {{ item.usuario.correo }}
+                        </td>
+                        <td class="align-middle">
+                            <span class="badge badge-info badge-pill">{{ item.usuario.rol.nombre_rol }}</span>
+                        </td>
+                        <td class="text-center align-middle">
+                            <span class="badge badge-pill {% if item.proyectos_asignados >= 2 %}badge-danger{% elif item.proyectos_asignados == 1 %}badge-warning{% else %}badge-success{% endif %}">
+                                {{ item.proyectos_asignados }}/2
+                            </span>
+                        </td>
+                        <td class="text-center align-middle">
+                            {% if item.proyectos_asignados >= 2 %}
+                                <span class="badge badge-danger badge-pill">
+                                    <i class="fas fa-times-circle"></i> No Disponible
+                                </span>
+                            {% else %}
+                                <span class="badge badge-success badge-pill">
+                                    <i class="fas fa-check-circle"></i> Disponible
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center align-middle">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modalEditarRecurso{{ item.usuario.id }}" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalEliminarUsuario{{ item.usuario.id }}" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-5">
+                            <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                            <p>No hay recursos humanos registrados.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Agregar Recurso Humano -->
+<div class="modal fade" id="modalAgregarRecurso" tabindex="-1" role="dialog" aria-labelledby="modalAgregarRecursoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="modalAgregarRecursoLabel">
+                    <i class="fas fa-user-plus"></i> Agregar Nuevo Recurso Humano
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'insertar_usuario' %}">
+    {% csrf_token %}
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="nombre_usuario">Nombre de Usuario:</label>
+                        <input type="text" name="nombre_usuario" id="nombre_usuario" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="correo">Correo Electrónico:</label>
+                        <input type="email" name="correo" id="correo" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="rol">Rol:</label>
+                        <select name="rol" id="rol" class="form-control" required>
+                            <option value="">Seleccione un rol</option>
+                            {% for rol in roles %}
+                                <option value="{{ rol.id }}">{{ rol.nombre_rol }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contrasena">Contraseña:</label>
+                        <input type="password" name="contrasena" id="contrasena" class="form-control" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success btn-block">
+                        <i class="fas fa-save"></i> Guardar Recurso Humano
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales para Editar Recursos Humanos -->
+{% for item in usuarios_con_proyectos %}
+<div class="modal fade" id="modalEditarRecurso{{ item.usuario.id }}" tabindex="-1" role="dialog" aria-labelledby="modalEditarRecursoLabel{{ item.usuario.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="modalEditarRecursoLabel{{ item.usuario.id }}">
+                    <i class="fas fa-edit"></i> Editar Recurso Humano
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'editar_recurso_humano' item.usuario.id %}">
+    {% csrf_token %}
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="nombre_{{ item.usuario.id }}">Nombre de Usuario:</label>
+                        <input type="text" name="nombre_usuario" id="nombre_{{ item.usuario.id }}" class="form-control" value="{{ item.usuario.nombre_usuario }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="correo_{{ item.usuario.id }}">Correo:</label>
+                        <input type="email" name="correo" id="correo_{{ item.usuario.id }}" class="form-control" value="{{ item.usuario.correo }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="rol_{{ item.usuario.id }}">Rol:</label>
+                        <select name="rol" id="rol_{{ item.usuario.id }}" class="form-control" required>
+                            {% for rol in roles %}
+                                <option value="{{ rol.id }}" {% if rol.id == item.usuario.rol.id %}selected{% endif %}>
+                                    {{ rol.nombre_rol }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contrasena_{{ item.usuario.id }}">Nueva Contraseña:</label>
+                        <input type="password" name="contrasena" id="contrasena_{{ item.usuario.id }}" class="form-control" placeholder="Dejar en blanco para mantener la actual">
+                        <small class="form-text text-muted">Solo llena este campo si deseas cambiar la contraseña</small>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-warning btn-block">
+                        <i class="fas fa-save"></i> Actualizar Datos
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Eliminar Usuario -->
+<div class="modal fade" id="modalEliminarUsuario{{ item.usuario.id }}" tabindex="-1" role="dialog" aria-labelledby="modalEliminarUsuarioLabel{{ item.usuario.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="modalEliminarUsuarioLabel{{ item.usuario.id }}">
+                    <i class="fas fa-exclamation-triangle"></i> Eliminar Usuario
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="text-center">
+                    <strong>¿Estás seguro de que deseas eliminar al usuario "<span class="text-danger">{{ item.usuario.nombre_usuario }}</span>"?</strong>
+                </p>
+                {% if item.proyectos_asignados > 0 %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        Este usuario tiene <strong>{{ item.proyectos_asignados }} proyecto(s)</strong> asignado(s). 
+                        Se eliminarán todas sus asignaciones.
+                    </div>
+                {% endif %}
+                <p class="text-muted text-center">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <form method="POST" action="{% url 'eliminar_usuario' item.usuario.id %}" style="display: inline;">
+    {% csrf_token %}
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Sí, Eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Auto-cerrar alertas después de 5 segundos
+    setTimeout(function() {
+        $('.alert').fadeOut('slow', function() {
+            $(this).remove();
+        });
+    }, 5000);
+</script>
+{% endfor %}
+<style>
+    /* Optimización de tabla para evitar scroll horizontal */
+    .table-responsive {
+        overflow-x: auto;
+    }
+    
+    .table td, .table th {
+        font-size: 0.9rem;
+        padding: 0.6rem;
+        vertical-align: middle;
+    }
+    
+    .table thead th {
+        font-size: 0.85rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    
+    /* Optimizar columna de correo para que se ajuste */
+    .table tbody td:nth-child(3) {
+        word-break: break-word;
+        max-width: 250px;
+    }
+    
+    /* Botones más compactos */
+    .btn-sm {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.85rem;
+    }
+    
+    /* Badges más compactos */
+    .badge {
+        font-size: 0.8rem;
+        padding: 0.35em 0.6em;
+    }
+    
+    /* Agrupar botones sin separación */
+    .btn-group .btn {
+        border-radius: 0;
+    }
+    
+    .btn-group .btn:first-child {
+        border-top-left-radius: 0.2rem;
+        border-bottom-left-radius: 0.2rem;
+    }
+    
+    .btn-group .btn:last-child {
+        border-top-right-radius: 0.2rem;
+        border-bottom-right-radius: 0.2rem;
+    }
+    /* Eliminar restricción de ancho en cards */
+    .card {
+        max-width: 100% !important;
+    }
+    
+    /* Optimizar tabla */
+    .table {
+        font-size: 0.88rem;
+        margin-bottom: 0;
+    }
+    
+    .table td, .table th {
+        padding: 0.6rem 0.4rem;
+        vertical-align: middle;
+    }
+    
+    .table thead th {
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    /* Botones compactos */
+    .btn-sm {
+        padding: 0.35rem 0.5rem;
+        font-size: 0.85rem;
+    }
+    
+    /* Badges */
+    .badge {
+        font-size: 0.8rem;
+        padding: 0.35em 0.6em;
+    }
+</style>
+</style>
+{% endblock %}

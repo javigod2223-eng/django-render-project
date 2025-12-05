@@ -1,0 +1,229 @@
+{% extends 'MenusUsuarios/baseusu_dashboard.html' %}
+
+{% block content %}
+<body>
+    <h2>Bienvenido, {{ usuario_nombre }}</h2>
+    <p>Tu rol es: {{ usuario_rol }}</p>
+
+    <!-- Mensajes de éxito/error con auto-hide -->
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" id="mensaje-{{ forloop.counter }}">
+            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %}"></i>
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+</div>
+
+<script>
+    // Auto-ocultar mensajes después de 5 segundos
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                // Fade out con animación
+                alert.style.transition = 'opacity 0.5s ease-out';
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    alert.remove();
+                }, 500);
+            }, 5000); // 5000ms = 5 segundos
+        });
+    });
+</script>
+{% endif %}
+
+    {% if tareas_vencidas > 0 %}
+    <div class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-triangle"></i> 
+        <strong>¡Atención!</strong> Tienes {{ tareas_vencidas }} tarea{{ tareas_vencidas|pluralize }} vencida{{ tareas_vencidas|pluralize }}.
+    </div>
+    {% endif %}
+
+    {% if tareas_pendientes > 0 %}
+    <div class="alert alert-warning" role="alert">
+        <i class="fas fa-tasks"></i> 
+        Tienes {{ tareas_pendientes }} tarea{{ tareas_pendientes|pluralize }} pendiente{{ tareas_pendientes|pluralize }}.
+    </div>
+    {% endif %}
+
+    <!-- Tabla de tareas asignadas -->
+    <h3 class="mb-3"><i class="fas fa-clipboard-list"></i> Mis Tareas Asignadas</h3>
+    <div class="table-responsive mb-4">
+        <table class="table table-striped table-bordered">
+            <thead class="table-primary">
+                <tr>
+                    <th style="width: 15%;">Proyecto</th>
+                    <th style="width: 12%;">Fase</th>
+                    <th style="width: 35%;">Descripción</th>
+                    <th style="width: 12%;">Fecha Límite</th>
+                    <th style="width: 13%;">Estado</th>
+                    <th style="width: 13%;">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tarea in tareas %}
+                <tr {% if tarea.esta_vencida %}class="table-danger"{% endif %}>
+                    <td><strong>{{ tarea.proyecto.nombre_proyecto }}</strong></td>
+                    <td>{{ tarea.fase.fase }}</td>
+                    <td>{{ tarea.descripcion }}</td>
+                    <td>
+                        {{ tarea.fecha_limite }}
+                        {% if tarea.esta_vencida %}
+                            <br><span class="badge bg-danger">⚠️ Vencida</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if tarea.estado == 'Completada' %}
+                            <span class="badge bg-success">✅ Completada</span>
+                        {% elif tarea.estado == 'En Progreso' %}
+                            <span class="badge bg-warning text-dark">🔄 En Progreso</span>
+                        {% else %}
+                            <span class="badge bg-secondary">⏳ Pendiente</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if tarea.documento_entregable %}
+                            <button type="button" class="btn btn-sm btn-success" disabled>
+                                <i class="fas fa-check-circle"></i> Entregado
+                            </button>
+                        {% elif tarea.fase.concluido %}
+                            <button type="button" class="btn btn-sm btn-secondary" disabled title="La fase está concluida">
+                                <i class="fas fa-lock"></i> Fase Cerrada
+                            </button>
+                        {% else %}
+                            <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modalSubirEntregable{{ tarea.id }}">
+                                <i class="fas fa-upload"></i> Subir Entregable
+                            </button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                        <p>No tienes tareas asignadas.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modales para subir entregables (uno por tarea) -->
+    {% for tarea in tareas %}
+    {% if not tarea.documento_entregable and not tarea.fase.concluido %}
+    <div class="modal fade" id="modalSubirEntregable{{ tarea.id }}" tabindex="-1" aria-labelledby="modalSubirEntregableLabel{{ tarea.id }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalSubirEntregableLabel{{ tarea.id }}">
+                        <i class="fas fa-upload"></i> Subir Entregable
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <strong>Tarea:</strong> {{ tarea.descripcion }}<br>
+                        <strong>Proyecto:</strong> {{ tarea.proyecto.nombre_proyecto }}<br>
+                        <strong>Fase:</strong> {{ tarea.fase.fase }}<br>
+                        <strong>Fecha Límite:</strong> {{ tarea.fecha_limite }}
+                    </div>
+                    
+                    <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+                        {% csrf_token %}
+                        
+                        <!-- Campos ocultos con la info de la tarea -->
+                        <input type="hidden" name="tarea_id" value="{{ tarea.id }}">
+                        <input type="hidden" name="proyecto" value="{{ tarea.proyecto.id }}">
+                        
+                        <div class="form-group">
+                            <label for="descripcion{{ tarea.id }}">Descripción del entregable: *</label>
+                            <textarea name="descripcion" id="descripcion{{ tarea.id }}" class="form-control" rows="3" placeholder="Describe brevemente tu entregable" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="url_documento{{ tarea.id }}">URL del documento (opcional):</label>
+                            <input type="url" name="url_documento" id="url_documento{{ tarea.id }}" class="form-control" placeholder="https://...">
+                            <small class="form-text text-muted">O sube un archivo PDF abajo</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="archivo_documento{{ tarea.id }}">O subir archivo PDF (opcional - máx 15MB):</label>
+                            <input type="file" name="archivo_documento" id="archivo_documento{{ tarea.id }}" class="form-control-file" accept=".pdf">
+                            <small class="form-text text-muted">Solo archivos PDF, máximo 15MB</small>
+                        </div>
+                        
+                        <div class="alert alert-warning">
+                            <i class="fas fa-info-circle"></i> Debes proporcionar al menos una URL o un archivo PDF.
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block btn-lg">
+                            <i class="fas fa-save"></i> Guardar Entregable
+                        </button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+
+    <!-- Formulario de búsqueda por nombre de proyecto -->
+    <h3 class="mb-3 mt-5"><i class="fas fa-folder-open"></i> Mis Proyectos</h3>
+    <form method="get" action="{% url 'user_dashboard' %}">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Buscar por nombre de proyecto" name="q" value="{{ request.GET.q }}">
+            <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+        </div>
+    </form>
+    
+    <!-- Tabla de proyectos -->
+    <div class="table-responsive mt-4">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre Proyecto</th>
+                    <th>Administrador</th>
+                    <th>Estado</th>
+                    <th>Porcentaje</th>
+                    <th>Fecha de Inicio</th>
+                    <th>Fecha Final</th>
+                    <th>Presupuesto</th>
+                    <th>Costo Final</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for proyecto in proyectos %}
+                <tr>
+                    <td>{{ proyecto.id }}</td>
+                    <td>{{ proyecto.nombre_proyecto }}</td>
+                    <td>{{ proyecto.admin_proyecto_usuario.nombre_usuario }}</td>
+                    <td>{{ proyecto.estado }}</td>
+                    <td>{{ proyecto.porcentaje }}</td>
+                    <td>{{ proyecto.fecha_inicio }}</td>
+                    <td>{{ proyecto.fecha_final }}</td>
+                    <td>{{ proyecto.presupuesto }}</td>
+                    <td>{{ proyecto.costo_final }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center">No estás asignado a ningún proyecto.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+{% endblock %}

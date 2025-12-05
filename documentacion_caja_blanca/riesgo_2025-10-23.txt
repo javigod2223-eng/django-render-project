@@ -1,0 +1,38 @@
+================================================================================
+  DOCUMENTACIÓN DE CAJA BLANCA
+  Criterio: NIVEL DE RIESGO
+  Fecha: 2025-10-23
+================================================================================
+
+1. DATOS DE ENTRADA
+--------------------------------------------------------------------------------
+   cantidad_riesgos: 2
+   riesgos: [100.0, 150.0]
+   promedio_riesgo: 125.0
+
+2. CÓDIGO FUENTE CON VALORES SUSTITUIDOS
+--------------------------------------------------------------------------------
+
+   def _calcular_riesgo(proyecto):
+       riesgos = proyecto.riesgos.all()  # → 2 riesgos
+       
+       if not riesgos.exists():  # → False
+           return 0
+       
+       promedio_riesgo = sum(r.porcentaje_riesgo for r in riesgos) / len(riesgos)
+       # → sum([100.0, 150.0]) / 2 = 125.00
+       
+       return min(promedio_riesgo, 100)  # → min(125.00, 100)
+
+
+3. CAMINO LÓGICO EJECUTADO
+--------------------------------------------------------------------------------
+   Evaluando cantidad_riesgos = 2
+   Promedio de riesgo = 125.00%
+   Retorna: min(125.00, 100) = 100.00
+
+4. RESULTADO/SCORE OBTENIDO
+--------------------------------------------------------------------------------
+   Score: 100
+
+================================================================================

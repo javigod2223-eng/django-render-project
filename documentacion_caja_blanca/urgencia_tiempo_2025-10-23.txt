@@ -1,0 +1,38 @@
+================================================================================
+  DOCUMENTACIÓN DE CAJA BLANCA
+  Criterio: URGENCIA DE TIEMPO
+  Fecha: 2025-10-23
+================================================================================
+
+1. DATOS DE ENTRADA
+--------------------------------------------------------------------------------
+   fecha_inicio: 2025-10-22
+   fecha_final: 2025-10-29
+   fecha_hoy: 2025-10-23
+   dias_restantes: 7
+
+2. CÓDIGO FUENTE CON VALORES SUSTITUIDOS
+--------------------------------------------------------------------------------
+
+   def _calcular_urgencia_tiempo(proyecto):
+       hoy = date.today()  # → 2025-10-23
+       dias_restantes = (proyecto.fecha_final - hoy).days  # → 7
+       
+       if dias_restantes < 0:  # → 7 < 0
+           return 100
+       elif dias_restantes <= 7:  # → 7 <= 7
+           return 90
+       elif dias_restantes <= 30:  # → 7 <= 30
+           return 70
+       elif dias_restantes <= 90:  # → 7 <= 90 
+3. CAMINO LÓGICO EJECUTADO
+--------------------------------------------------------------------------------
+   Evaluando días_restantes = 7
+   ✓ Condición: dias_restantes <= 7 → 7 <= 7 → VERDADERO
+     Retorna: 90 (Menos de 1 semana)
+
+4. RESULTADO/SCORE OBTENIDO
+--------------------------------------------------------------------------------
+   Score: 90
+
+================================================================================

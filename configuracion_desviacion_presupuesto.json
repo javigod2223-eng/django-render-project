@@ -1,0 +1,42 @@
+{
+  "urgencia_tiempo": [
+    {
+      "nombre": "test_urgencia_proyecto_vencido",
+      "descripcion": "Proyecto vencido",
+      "dias": -1,
+      "score_esperado": 100,
+      "codigo_lineas": [
+        38,
+        47,
+        48
+      ],
+      "condicion": "dias_restantes < 0 → -1 < 0 → TRUE",
+      "valores": {
+        "dias_restantes": -1
+      }
+    }
+  ],
+  "desviacion_presupuesto": [
+    {
+      "nombre": "test_desviacion_sobrecosto_10_25",
+      "descripcion": "Sobrecosto 10-25%",
+      "presupuesto": 250000.0,
+      "costo_final": 3500000.0,
+      "score_esperado": 60,
+      "codigo_lineas": [
+        65,
+        67,
+        69,
+        70,
+        72,
+        73
+      ],
+      "condicion": "10 <= desviacion < 25 → 10 <= 1300.0 < 25 → TRUE",
+      "valores": {
+        "presupuesto": 250000.0,
+        "costo_final": 3500000.0,
+        "desviacion": "1300.0%"
+      }
+    }
+  ]
+}

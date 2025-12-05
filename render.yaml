@@ -1,0 +1,22 @@
+databases:
+  - name: planneiro-db
+    databaseName: planneiro
+    user: planneiro
+
+services:
+  - type: web
+    name: planneiro
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn planneiro.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: False
+      - key: DATABASE_URL
+        fromDatabase:
+          name: planneiro-db
+          property: connectionString
