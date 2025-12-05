@@ -661,3 +661,4 @@ class AgregarTareaForm(forms.ModelForm):
         if fase and fase.concluido:
             raise forms.ValidationError('❌ No se pueden asignar tareas a fases concluidas.')
         return fase
+        

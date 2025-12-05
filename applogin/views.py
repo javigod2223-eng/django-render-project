@@ -89,7 +89,15 @@ def admin_dashboard(request):
         return redirect('login')
 
     usuarios = Usuario.objects.all()
-    proyectos = Proyecto.objects.all().order_by('-id')  # ✅ Ordenar por ID descendente (más recientes primero)
+    
+    # ✅ Filtrar proyectos por administrador actual
+    usuario_id = request.session.get('usuario_id')
+    usuario_actual = Usuario.objects.get(id=usuario_id)
+
+    # Mostrar solo los proyectos donde el usuario actual es el admin_proyecto_usuario
+    proyectos = Proyecto.objects.filter(
+    admin_proyecto_usuario=usuario_actual
+    ).order_by('-id')
 
     # Obtener el término de búsqueda
     query = request.GET.get('q')
@@ -260,10 +268,14 @@ def agregar_proyecto(request):
         print(f"Form válido: {form.is_valid()}")
         
         if form.is_valid():
-            # Guardar sin commit para poder modificar
             proyecto = form.save(commit=False)
             
-            # ✅ Asignar estado manualmente
+            # ✅ Si no se especificó admin, asignar al usuario actual
+            if not proyecto.admin_proyecto_usuario_id:
+                usuario_id = request.session.get('usuario_id')
+                proyecto.admin_proyecto_usuario_id = usuario_id
+            
+            # Asignar estado manualmente
             if not proyecto.estado:
                 proyecto.estado = 'En proceso'
             
@@ -271,8 +283,8 @@ def agregar_proyecto(request):
             
             print(f"✅ Proyecto guardado con ID: {proyecto.id}")
             print(f"   Nombre: {proyecto.nombre_proyecto}")
+            print(f"   Admin: {proyecto.admin_proyecto_usuario.nombre_usuario}")
             print(f"   Estado: {proyecto.estado}")
-            print(f"   Finalizado: {proyecto.finalizado}")
             
             messages.success(request, f'✅ Proyecto "{proyecto.nombre_proyecto}" creado exitosamente.')
             return redirect('admin_dashboard')
@@ -281,28 +293,24 @@ def agregar_proyecto(request):
             for field, errors in form.errors.items():
                 print(f"   Campo '{field}': {errors}")
             
+            # Filtrar proyectos del usuario actual
+            usuario_id = request.session.get('usuario_id')
+            usuario_actual = Usuario.objects.get(id=usuario_id)
+            
             return render(request, 'MenusAdmins/admin_dashboard.html', {
                 'form': form,
                 'mostrar_modal': True,
-                'proyectos': Proyecto.objects.all().order_by('-id')[:5],
+                'proyectos': Proyecto.objects.filter(
+                    admin_proyecto_usuario=usuario_actual
+                ).order_by('-id')[:5],
+                'usuarios': Usuario.objects.all(),
                 'form_usuario': InsertarUsuarioForm(),
                 'usuario_nombre': request.session.get('usuario_nombre'),
                 'usuario_rol': request.session.get('usuario_rol'),
             })
-    else:
-        print("📄 Método GET - Mostrando formulario vacío")
-        form = ProyectoForm()
-
-    context = {
-        'form': form,
-        'usuarios': Usuario.objects.all(),
-        'proyectos': Proyecto.objects.all().order_by('-id')[:5],
-        'mostrar_modal': False,
-        'form_usuario': InsertarUsuarioForm(),
-        'usuario_nombre': request.session.get('usuario_nombre'),
-        'usuario_rol': request.session.get('usuario_rol'),
-    }
-    return render(request, 'MenusAdmins/admin_dashboard.html', context)
+    
+    # Si es método GET, redirigir al dashboard
+    return redirect('admin_dashboard')
 
 def detalles_proyecto(request, proyecto_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
@@ -862,8 +870,8 @@ def gestion_recursos_humanos(request):
         return redirect('login')
     
     # Obtener todos los usuarios que NO son administradores
-    usuarios = Usuario.objects.exclude(rol__nombre_rol='Administrador').order_by('nombre_usuario')
-    
+    usuario_actual_id = request.session.get('usuario_id')
+    usuarios = Usuario.objects.exclude(id=usuario_actual_id).order_by('nombre_usuario')
     # Contar proyectos asignados para cada usuario
     usuarios_con_proyectos = []
     for usuario in usuarios:
