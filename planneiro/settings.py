@@ -161,3 +161,4 @@ STORAGES = {
 # Mantener la configuración de archivos grandes
 FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800
 DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800
+# Forzar redeploy - fix cloudinary storage
