@@ -14,6 +14,9 @@ from pathlib import Path
 import os
 from decouple import config
 import dj_database_url
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -37,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',
+    'cloudinary',
     'django.contrib.staticfiles',
     'applogin',
 ]
@@ -137,13 +142,15 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Configuración para archivos subidos
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-# Configuración para archivos grandes
-# Tamaño máximo de archivos subidos (50MB)
-FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB en bytes (50 * 1024 * 1024)
-DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB en bytes
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', 'doojfbv6r'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY', '727518242191549'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', ''),
+}
 
-# Tamaño máximo total de la petición (incluyendo todos los archivos)
-DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000  # Aumentar si tienes muchos campos
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Usar Cloudinary para archivos subidos
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# Mantener la configuración de archivos grandes
+FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800
+DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800
