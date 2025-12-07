@@ -149,7 +149,14 @@ CLOUDINARY_STORAGE = {
 }
 
 # Usar Cloudinary para archivos subidos
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Mantener la configuración de archivos grandes
 FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800
