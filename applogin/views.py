@@ -205,34 +205,37 @@ def user_dashboard(request):
             messages.error(request, 'Debes proporcionar una URL o subir un archivo PDF.')
             return redirect('user_dashboard')
         
-        # Crear el documento
         try:
             proyecto = Proyecto.objects.get(id=proyecto_id)
+    
+    # ✅ Crear instancia sin guardar
             documento = Documento(
                 proyecto=proyecto,
                 descripcion=descripcion,
                 url_documento=url_documento if url_documento else None,
-                
             )
+    
+    # ✅ Asignar archivo si existe
             if archivo_documento:
                 documento.archivo_documento = archivo_documento
-
-            documento.save
-            
-            # Asociar a la tarea y marcar como completada
+    
+    # ✅ PRIMERO: Guardar el documento (esto activa Cloudinary)
+            documento.save()
+    
+    # ✅ DESPUÉS: Asociar a la tarea y marcar como completada
             if tarea_id:
                 tarea = Tarea.objects.get(id=tarea_id)
-                tarea.documento_entregable = documento
+                tarea.documento_entregable = documento  # Ahora sí existe el documento
                 tarea.estado = 'Completada'
                 tarea.save()
-                
+        
                 print(f"Tarea {tarea_id} marcada como completada")
                 messages.success(request, f'✅ Entregable subido exitosamente y tarea completada.')
             else:
                 messages.success(request, 'Entregable subido exitosamente.')
-            
+    
             return redirect('user_dashboard')
-            
+    
         except Exception as e:
             messages.error(request, f'Error al subir el entregable: {str(e)}')
             print(f"ERROR: {str(e)}")
