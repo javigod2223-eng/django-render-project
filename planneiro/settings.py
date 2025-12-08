@@ -17,7 +17,6 @@ import dj_database_url
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -41,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary_storage',  # ✅ DEBE IR ANTES DE staticfiles
+    'cloudinary_storage',
     'cloudinary',
     'django.contrib.staticfiles',
     'applogin',
@@ -49,14 +48,14 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    #'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'applogin.middleware.RoleBasedRedirectMiddleware',
+    'applogin.middleware.RoleBasedRedirectMiddleware',  # Asegúrate de agregarlo aquí
 ]
 
 
@@ -125,57 +124,36 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
+# Añadir la ruta a la carpeta static de la app
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # AGREGAR ESTA LÍNEA
+
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 STATICFILES_DIRS = [
     BASE_DIR / 'applogin' / 'static',
 ]
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
+# AGREGAR ESTA LÍNEA AQUÍ:
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
+# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ============================================================================
-# CONFIGURACIÓN DE CLOUDINARY
-# ============================================================================
-
-# Configuración de Cloudinary para archivos subidos
+# Configuración para archivos subidos
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', 'doojfbv6r'),
     'API_KEY': os.environ.get('CLOUDINARY_API_KEY', '727518242191549'),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', ''),  # ⚠️ ASEGÚRATE DE TENER ESTO EN RENDER
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', ''),
 }
 
-# Inicializar Cloudinary con la configuración
-cloudinary.config(
-    cloud_name=CLOUDINARY_STORAGE['CLOUD_NAME'],
-    api_key=CLOUDINARY_STORAGE['API_KEY'],
-    api_secret=CLOUDINARY_STORAGE['API_SECRET'],
-    secure=True
-)
-
-# ============================================================================
-# STORAGE BACKENDS (Django 5.0+)
-# ============================================================================
-
-STORAGES = {
-    "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
-    },
-}
-
-# Para compatibilidad con versiones anteriores de Django
+# Solo configuración de archivos subidos
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
-# ============================================================================
-# CONFIGURACIÓN DE ARCHIVOS GRANDES
-# ============================================================================
 
-FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB
+# Mantener la configuración de archivos grandes
+FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800
+DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800
