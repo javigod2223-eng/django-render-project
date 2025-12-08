@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError 
+from cloudinary.models import CloudinaryField 
 
 # Create your models here.
 #Usuarios
@@ -85,9 +86,13 @@ class Documento(models.Model):
     descripcion = models.TextField(default='Descripción predeterminada')
     proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, related_name='documentos')
     url_documento = models.URLField(blank=True, null=True)  
-    archivo_documento = models.FileField(
-        upload_to='documentos/%Y/%m/',  
-        blank=True, 
+    
+    # ✅ CAMBIO PRINCIPAL: Usar CloudinaryField en lugar de FileField
+    archivo_documento = CloudinaryField(
+        'documento',
+        resource_type='raw',  # 'raw' es para PDFs y archivos no-imagen
+        folder='documentos',  # Carpeta en Cloudinary donde se guardarán
+        blank=True,
         null=True,
         help_text='Archivo PDF (máximo 15MB)'
     )
@@ -102,12 +107,14 @@ class Documento(models.Model):
         
         # Validar tamaño del archivo (máximo 15MB)
         if self.archivo_documento:
-            if self.archivo_documento.size > 15 * 1024 * 1024:  # 15MB en bytes
-                raise ValidationError('El archivo no puede superar los 15MB.')
-            
-            # Validar que sea PDF
-            if not self.archivo_documento.name.endswith('.pdf'):
-                raise ValidationError('Solo se permiten archivos PDF.')
+            # Para CloudinaryField, verificar si tiene contenido antes de validar
+            if hasattr(self.archivo_documento, 'file') and self.archivo_documento.file:
+                if self.archivo_documento.file.size > 15 * 1024 * 1024:  # 15MB en bytes
+                    raise ValidationError('El archivo no puede superar los 15MB.')
+                
+                # Validar que sea PDF
+                if not self.archivo_documento.file.name.endswith('.pdf'):
+                    raise ValidationError('Solo se permiten archivos PDF.')
 
 class Fase(models.Model):
     id = models.AutoField(primary_key=True)
