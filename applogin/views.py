@@ -208,12 +208,16 @@ def user_dashboard(request):
         # Crear el documento
         try:
             proyecto = Proyecto.objects.get(id=proyecto_id)
-            documento = Documento.objects.create(
+            documento = Documento(
                 proyecto=proyecto,
                 descripcion=descripcion,
                 url_documento=url_documento if url_documento else None,
-                archivo_documento=archivo_documento if archivo_documento else None
+                
             )
+            if archivo_documento:
+                documento.archivo_documento = archivo_documento
+
+            documento.save
             
             # Asociar a la tarea y marcar como completada
             if tarea_id:
