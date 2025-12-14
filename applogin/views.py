@@ -117,7 +117,7 @@ def admin_dashboard(request):
         proyectos_paginados = paginator.page(1)
     except EmptyPage:
         proyectos_paginados = paginator.page(paginator.num_pages)
-
+    roles = Rol.objects.exclude(nombre_rol='Administrador').order_by('nombre_rol')
     contexto = {
         'usuario_nombre': request.session.get('usuario_nombre'),
         'usuario_rol': request.session.get('usuario_rol'),
@@ -125,6 +125,7 @@ def admin_dashboard(request):
         'proyectos': proyectos_paginados,
         'form': ProyectoForm(),
         'form_usuario': InsertarUsuarioForm(),
+        'roles': roles,  # ✅ AGREGAR ESTA LÍNEA
     }
     return render(request, 'MenusAdmins/admin_dashboard.html', contexto)
 
@@ -134,24 +135,96 @@ def insertar_usuario(request):
         form = InsertarUsuarioForm(request.POST)
         if form.is_valid():
             correo = form.cleaned_data['correo']
+            nombre_usuario = form.cleaned_data['nombre_usuario']
+            contrasena = form.cleaned_data['contrasena']
+            rol = form.cleaned_data['rol']
+            
             usuario_existente = Usuario.objects.filter(correo=correo).first()
+            
+            # Función auxiliar para enviar correo
+            def enviar_correo_credenciales(usuario, contrasena, es_nuevo=True):
+                try:
+                    from django.core.mail import send_mail
+                    from django.conf import settings
+                    
+                    if es_nuevo:
+                        asunto = '🎉 Bienvenido al Sistema Plannerio'
+                        mensaje = f"""
+¡Hola {usuario.nombre_usuario}!
+
+Te damos la bienvenida al Sistema de Gestión de Proyectos Plannerio.
+
+Tus credenciales de acceso son:
+
+📧 Correo: {usuario.correo}
+🔑 Contraseña: {contrasena}
+👤 Rol: {usuario.rol.nombre_rol}
+
+Puedes iniciar sesión en: https://planneiro.onrender.com
+
+IMPORTANTE: Guarda estas credenciales en un lugar seguro, ya que no podrás cambiar tu contraseña.
+
+---
+Sistema de Gestión de Proyectos Plannerio
+                        """
+                    else:
+                        asunto = '🔐 Actualización de credenciales - Sistema Plannerio'
+                        mensaje = f"""
+Hola {usuario.nombre_usuario},
+
+Tus credenciales de acceso han sido actualizadas en el Sistema Plannerio.
+
+📧 Correo: {usuario.correo}
+🔑 Nueva contraseña: {contrasena}
+👤 Rol: {usuario.rol.nombre_rol}
+
+Puedes iniciar sesión en: https://planneiro.onrender.com
+
+IMPORTANTE: Guarda estas credenciales en un lugar seguro, ya que no podrás cambiar tu contraseña.
+
+---
+Sistema de Gestión de Proyectos Plannerio
+                        """
+                    
+                    send_mail(
+                        asunto,
+                        mensaje,
+                        settings.DEFAULT_FROM_EMAIL,
+                        [usuario.correo],
+                        fail_silently=False,
+                    )
+                    return True
+                except Exception as e:
+                    print(f"Error al enviar correo: {str(e)}")
+                    return False
             
             if usuario_existente:
                 # Actualizar usuario existente
-                usuario_existente.rol = form.cleaned_data['rol']
-                usuario_existente.nombre_usuario = form.cleaned_data['nombre_usuario']
+                usuario_existente.rol = rol
+                usuario_existente.nombre_usuario = nombre_usuario
                 
                 # Solo actualizar contraseña si se proporcionó una nueva
-                nueva_contrasena = form.cleaned_data.get('contrasena')
-                if nueva_contrasena:
-                    usuario_existente.contrasena = nueva_contrasena
-                
-                usuario_existente.save()
-                messages.success(request, f'✅ Usuario "{usuario_existente.nombre_usuario}" actualizado correctamente.')
+                if contrasena:
+                    usuario_existente.contrasena = contrasena
+                    usuario_existente.save()
+                    
+                    # Enviar correo con nueva contraseña
+                    if enviar_correo_credenciales(usuario_existente, contrasena, es_nuevo=False):
+                        messages.success(request, f'✅ Usuario "{usuario_existente.nombre_usuario}" actualizado y correo enviado exitosamente.')
+                    else:
+                        messages.warning(request, f'✅ Usuario actualizado, pero hubo un error al enviar el correo.')
+                else:
+                    usuario_existente.save()
+                    messages.success(request, f'✅ Usuario "{usuario_existente.nombre_usuario}" actualizado correctamente.')
             else:
                 # Insertar nuevo usuario
                 nuevo_usuario = form.save()
-                messages.success(request, f'✅ Recurso humano "{nuevo_usuario.nombre_usuario}" creado exitosamente.')
+                
+                # Enviar correo de bienvenida
+                if enviar_correo_credenciales(nuevo_usuario, contrasena, es_nuevo=True):
+                    messages.success(request, f'✅ Recurso humano "{nuevo_usuario.nombre_usuario}" creado exitosamente y correo enviado.')
+                else:
+                    messages.warning(request, f'✅ Usuario creado, pero hubo un error al enviar el correo.')
             
             return redirect('gestion_recursos_humanos')
         else:

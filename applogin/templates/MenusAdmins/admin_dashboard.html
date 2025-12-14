@@ -63,9 +63,9 @@
                 </div>
 
                 <div class="col-md-4">
-    <a href="{% url 'gestion_recursos_humanos' %}" class="btn btn-success btn-lg btn-block">
+    <button type="button" class="btn btn-success btn-lg btn-block" data-toggle="modal" data-target="#modalAgregarRecursoRapido">
         <i class="fas fa-users-cog mr-2"></i> Recursos Humanos
-    </a>
+    </button>
 </div>
 
                 <script>
@@ -287,5 +287,61 @@
         }
     });
 </script>
-
+<!-- Modal Agregar Recurso Humano desde Dashboard -->
+<div class="modal fade" id="modalAgregarRecursoRapido" tabindex="-1" role="dialog" aria-labelledby="modalAgregarRecursoRapidoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="modalAgregarRecursoRapidoLabel">
+                    <i class="fas fa-user-plus"></i> Agregar Nuevo Recurso Humano
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'insertar_usuario' %}">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="nombre_usuario_dash">Nombre de Usuario:</label>
+                        <input type="text" name="nombre_usuario" id="nombre_usuario_dash" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="correo_dash">Correo Electrónico:</label>
+                        <input type="email" name="correo" id="correo_dash" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="rol_dash">Rol:</label>
+                        <select name="rol" id="rol_dash" class="form-control" required>
+                            <option value="">Seleccione un rol</option>
+                            {% for rol in roles %}
+                                <option value="{{ rol.id }}">{{ rol.nombre_rol }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contrasena_dash">Contraseña:</label>
+                        <input type="password" name="contrasena" id="contrasena_dash" class="form-control" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success btn-block">
+                        <i class="fas fa-save"></i> Guardar Recurso Humano
+                    </button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+                <a href="{% url 'gestion_recursos_humanos' %}" class="btn btn-info">
+                    <i class="fas fa-list"></i> Ver todos los recursos
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
